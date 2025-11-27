@@ -1,0 +1,8 @@
+{
+  "question": "apa itu RAG?",
+  "answer": "I found this: 'RAG atau Retrieval-Augmented Generation adalah pendekatan dalam kecerdasan buatan yang mengintegrasi...'",
+  "context_used": [
+    "RAG atau Retrieval-Augmented Generation adalah pendekatan dalam kecerdasan buatan yang mengintegrasikan dua komponen utama: pencarian informasi dan pembuatan teks."
+  ],
+  "latency_sec": 0
+}
