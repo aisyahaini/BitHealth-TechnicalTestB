@@ -1,19 +1,20 @@
-# DocumentStore abstraction + Qdrant and InMemory implementations
+# import library
 from abc import ABC, abstractmethod
 from typing import List, Optional
 import uuid
 
+# try to import qdrant-client
 try:
     from qdrant_client import QdrantClient
     from qdrant_client.models import PointStruct, VectorParams, Distance
     _QDRANT_AVAILABLE = True
 except Exception:
     _QDRANT_AVAILABLE = False
-    
+
+# abstract base class
 class DocumentStore(ABC):
     @abstractmethod
-    def upsert(self, text: str, vector: List[float], doc_id: Optional[str] =
-    None)-> str:
+    def upsert(self, text: str, vector: List[float], doc_id: Optional[str] =None)-> str:
         raise NotImplementedError
     
     @abstractmethod
@@ -23,25 +24,25 @@ class DocumentStore(ABC):
     @abstractmethod
     def count(self)-> int:
         raise NotImplementedError
-    
+
+# store with vector search using Qdrant
 class InMemoryStore(DocumentStore):
     def __init__(self):
         self._docs = [] # list of tuples (id, text)
-    def upsert(self, text: str, vector: List[float], doc_id: Optional[str] =
-        None)-> str:
+        
+    def upsert(self, text: str, vector: List[float], doc_id: Optional[str] = None)-> str:
         _id = doc_id or str(len(self._docs))
         self._docs.append((_id, text))
         return _id
+    
     def search(self, vector: List[float], limit: int = 2)-> List[str]:
-        # naive substring fallback: return docs that contain any token from vector-derived heuristic
-        # keep behaviour similar to original demo: check substring of text using an simple heuristic
-        # but we will simply return first `limit` docs if present to preserve behaviour
         results = [t for (_id, t) in self._docs if t]
         return results[:limit]
     
     def count(self)-> int:
         return len(self._docs)
-    
+
+# store with vector search using Qdrant
 class QdrantStore(DocumentStore):
     def __init__(self, url: str = "http://localhost:6333", collection_name: str = "demo_collection", dim: int = 128):
         if not _QDRANT_AVAILABLE:
@@ -68,8 +69,7 @@ class QdrantStore(DocumentStore):
         return _id
     
     def search(self, vector: List[float], limit: int = 2)-> List[str]:
-        hits = self.client.search(collection_name=self.collection,
-        query_vector=vector, limit=limit)
+        hits = self.client.search(collection_name=self.collection, query_vector=vector, limit=limit)
         return [h.payload.get("text") for h in hits if h.payload]
     
     def count(self)-> int:
@@ -79,6 +79,7 @@ class QdrantStore(DocumentStore):
         except Exception:
             return 0
 
+# selecting the appropriate store (Qdrant or in-memory)
 def build_default_store(dim: int = 128):
         """Factory: prefer Qdrant if available and running, else in-memory."""
         if _QDRANT_AVAILABLE:

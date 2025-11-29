@@ -1,6 +1,8 @@
+# import library
 import time
 from typing import Dict, Any, List
 
+# class to demonstrate a simple implementation of the RAG workflow
 class RagWorkflow:
     def __init__(self, embedder, store, k: int = 2):
         """

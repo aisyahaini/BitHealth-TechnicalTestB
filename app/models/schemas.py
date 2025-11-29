@@ -1,12 +1,15 @@
+# import library
 from pydantic import BaseModel
 from typing import List
 
+# class for input request model
 class QuestionRequest(BaseModel):
     question: str
  
 class DocumentRequest(BaseModel):
     text: str
  
+# class for output response model
 class AskResponse(BaseModel):
     question: str
     answer: str

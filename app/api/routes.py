@@ -1,3 +1,4 @@
+# import library
 from fastapi import APIRouter, Depends, HTTPException
 from ..models.schemas import QuestionRequest, DocumentRequest, AskResponse, AddResponse, StatusResponse
 from ..services.embedding import EmbeddingService
@@ -5,14 +6,16 @@ from ..services.store import build_default_store
 from ..workflows.rag import RagWorkflow
 from typing import Callable
 
+# create FastAPI router
 router = APIRouter()
 
- # Build shared components (explicitly created here so they can be replaced in tests)
+# size of vector embedding dimensions
 EMBED_DIM = 128
 embedder = EmbeddingService(dim=EMBED_DIM)
 store = build_default_store(dim=EMBED_DIM)
 workflow = RagWorkflow(embedder=embedder, store=store)
 
+# endpoint to add document
 @router.post("/add", response_model=AddResponse)
 def add_document(req: DocumentRequest):
     try:
@@ -22,6 +25,7 @@ def add_document(req: DocumentRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# endpoint to ask question
 @router.post("/ask", response_model=AskResponse)
 def ask_question(req: QuestionRequest):
     try:
@@ -35,6 +39,7 @@ def ask_question(req: QuestionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# endpoint to check status
 @router.get("/status", response_model=StatusResponse)
 def status():
     return {
